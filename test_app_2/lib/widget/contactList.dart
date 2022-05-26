@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:test_app/main.dart';
 import 'package:test_app/services/database.dart';
-
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../Screens/AboutScreen.dart';
 
 class ContactList extends StatelessWidget {
@@ -33,47 +34,73 @@ class ContactList extends StatelessWidget {
 
             default:
               {
-
-                return FutureBuilder<List<Map<String,dynamic>>>
-                  (builder:(context, dataSnapshot) {
-                          if(dataSnapshot.hasError)return Text("error");
-                          switch (dataSnapshot.connectionState){
-                            case ConnectionState.waiting: return Center(child:CircularProgressIndicator());
-                            break;
-                            default : {
-                              return dataSnapshot.data==null?Center(child:Text("NO DATA")) :
-                              SingleChildScrollView(
-
-                                child:  Column(
+                return FutureBuilder<List<Map<String, dynamic>>>(
+                  builder: (context, dataSnapshot) {
+                    if (dataSnapshot.hasError) return Text("error");
+                    switch (dataSnapshot.connectionState) {
+                      case ConnectionState.waiting:
+                        return Center(child: CircularProgressIndicator());
+                        break;
+                      default:
+                        {
+                          return dataSnapshot.data == null
+                              ? Center(child: Text("NO DATA"))
+                              : SingleChildScrollView(
+                                  child: Column(
                                     children: [
                                       ColoredBox(
                                         color: Colors.lightBlue,
                                         child: ListView.builder(
                                           shrinkWrap: true,
                                           primary: false,
-                                          itemBuilder: (BuildContext context, int index) {
+                                          itemBuilder: (BuildContext context,
+                                              int index) {
                                             return Container(
                                               decoration: BoxDecoration(
                                                   border: Border.all(
-                                                      width: 1, color: Colors.black)),
+                                                      width: 1,
+                                                      color: Colors.black)),
                                               child: ListTile(
                                                 leading: Icon(Icons
                                                     .supervised_user_circle_outlined),
                                                 tileColor: Colors.black12,
                                                 contentPadding:
-                                                EdgeInsets.symmetric(horizontal: 20),
+                                                    EdgeInsets.symmetric(
+                                                        horizontal: 20),
                                                 shape: RoundedRectangleBorder(
                                                     borderRadius:
-                                                    BorderRadius.circular(20.0),
+                                                        BorderRadius.circular(
+                                                            20.0),
                                                     side: BorderSide(
                                                         color: Theme.of(context)
                                                             .primaryColor,
                                                         width: 0.5)),
-                                                title: Text(dataSnapshot.data[index]['Name']),
+                                                title: Text(dataSnapshot
+                                                    .data[index]['Name']),
                                                 onTap: () {
-                                                  Navigator.of(context).pushNamed(
-                                                      AboutScreen.route,
-                                                      arguments: dataSnapshot.data[index]);
+                                                  flutterLocalNotificationsPlugin
+                                                      .show(
+                                                    0,
+                                                    "Testing the notification",
+                                                    "How you are doing?",
+                                                    NotificationDetails(
+                                                        android:
+                                                            AndroidNotificationDetails(
+                                                      channel.id,
+                                                      channel.name,
+                                                      channelDescription:
+                                                          channel.description,
+                                                      color: Colors.blue,
+                                                      icon:
+                                                          "@mipmap/ic_launcher",
+                                                    )),
+                                                  );
+                                                  Navigator.of(context)
+                                                      .pushNamed(
+                                                          AboutScreen.route,
+                                                          arguments:
+                                                              dataSnapshot
+                                                                  .data[index]);
                                                 },
                                               ),
                                             );
@@ -85,11 +112,12 @@ class ContactList extends StatelessWidget {
                                           "Ask your friends and nearby people to download INTRO app to know about them."),
                                     ],
                                   ),
-
-                              );
-                            }
-                          }
-                }, future:Database().dataFetcher(),);
+                                );
+                        }
+                    }
+                  },
+                  future: Database().dataFetcher(),
+                );
               }
           }
         });
